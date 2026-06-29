@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="logo" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c96a2b"/>
+      <stop offset="1" stop-color="#e06c5e"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="78%" cy="12%" r="60%">
+      <stop offset="0" stop-color="#c96a2b" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#c96a2b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#f5f1e8"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <rect x="0" y="0" width="1200" height="10" fill="#c96a2b"/>
+
+  <!-- brand -->
+  <g transform="translate(80,74)">
+    <rect width="56" height="56" rx="15" fill="url(#logo)"/>
+    <g transform="translate(15,15)" fill="none" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 3a13 13 0 1 1-14 2"/>
+      <path d="M7 0v7h7"/>
+    </g>
+    <text x="76" y="38" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="34" fill="#1f1a17">Claude Loop</text>
+  </g>
+
+  <!-- pill -->
+  <g transform="translate(80,178)">
+    <rect width="430" height="44" rx="22" fill="#fbf8f2" stroke="#cfc4b4"/>
+    <circle cx="26" cy="22" r="5" fill="#4d7a57"/>
+    <text x="44" y="29" font-family="'Helvetica Neue', Arial, sans-serif" font-size="17" fill="#6b625b">Runs locally · crafted by <tspan fill="#c96a2b" font-weight="600">Karim Meleka</tspan></text>
+  </g>
+
+  <!-- headline -->
+  <g font-family="Georgia, 'Times New Roman', serif" font-weight="700" fill="#1f1a17">
+    <text x="78" y="320" font-size="78" letter-spacing="-1">Operational memory and</text>
+    <text x="78" y="408" font-size="78" letter-spacing="-1">safety for <tspan font-style="italic" fill="#c96a2b">Claude Code.</tspan></text>
+  </g>
+
+  <!-- subtitle -->
+  <text x="80" y="476" font-family="'Helvetica Neue', Arial, sans-serif" font-size="26" fill="#6b625b">Persistent memory · rollback · test feedback · loop detection</text>
+
+  <!-- footer line -->
+  <line x1="80" y1="540" x2="1120" y2="540" stroke="#ddd4c7" stroke-width="1.5"/>
+  <text x="80" y="582" font-family="'Courier New', monospace" font-size="22" fill="#1f1a17" font-weight="700">claudeloop.surge.sh</text>
+  <text x="1120" y="582" text-anchor="end" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#8a8177">karimmeleka.com · github.com/kmlogloglog</text>
+</svg>

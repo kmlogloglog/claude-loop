@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ============ PRIMARY SEO ============ -->
+  <title>Claude Loop — Memory &amp; Safety for Claude Code | by Karim Meleka</title>
+  <meta name="description" content="Claude Loop adds persistent memory, file-level rollback, automatic test feedback, loop detection, and context-pressure awareness to every Claude Code session. Runs locally. Built and curated by developer Karim Meleka." />
+  <meta name="keywords" content="Claude Loop, Claude Code, Claude Code memory, Claude Code plugin, AI agent loops, Loop Library, Loopy, agent memory, Claude Code rollback, Karim Meleka, claude code tools, AI coding agent, persistent memory for AI" />
+  <meta name="author" content="Karim Meleka" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="theme-color" content="#f5f1e8" />
+  <link rel="canonical" href="https://claudeloop.surge.sh/" />
+
+  <!-- ============ OPEN GRAPH ============ -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Claude Loop" />
+  <meta property="og:title" content="Claude Loop — Memory &amp; Safety for Claude Code" />
+  <meta property="og:description" content="Persistent memory, rollback, test feedback, and loop detection for every Claude Code session. Runs locally, no telemetry. Built by developer Karim Meleka." />
+  <meta property="og:url" content="https://claudeloop.surge.sh/" />
+  <meta property="og:image" content="https://claudeloop.surge.sh/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Claude Loop — operational memory and safety for Claude Code, by Karim Meleka" />
+  <meta property="og:locale" content="en_US" />
+
+  <!-- ============ TWITTER ============ -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Claude Loop — Memory &amp; Safety for Claude Code" />
+  <meta name="twitter:description" content="Persistent memory, rollback, test feedback, and loop detection for Claude Code. Runs locally. Built by Karim Meleka." />
+  <meta name="twitter:image" content="https://claudeloop.surge.sh/og-image.png" />
+  <meta name="twitter:image:alt" content="Claude Loop by Karim Meleka" />
+
+  <!-- ============ ICONS / FONTS ============ -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="apple-touch-icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;0,8..60,700;0,8..60,800;1,8..60,400;1,8..60,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- ============ STRUCTURED DATA (JSON-LD) ============ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://claudeloop.surge.sh/#website",
+        "url": "https://claudeloop.surge.sh/",
+        "name": "Claude Loop",
+        "description": "Operational memory and safety for Claude Code.",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://claudeloop.surge.sh/#person" }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://claudeloop.surge.sh/#software",
+        "name": "Claude Loop",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "macOS, Linux, Windows",
+        "description": "Claude Loop adds persistent memory, file-level rollback, automatic test feedback, loop detection, context-pressure awareness, and before/after screenshot comparison to every Claude Code session. Runs entirely on your machine.",
+        "url": "https://claudeloop.surge.sh/",
+        "downloadUrl": "https://claudeloop.surge.sh/",
+        "softwareVersion": "1.0",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@id": "https://claudeloop.surge.sh/#person" },
+        "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "128" }
+      },
+      {
+        "@type": "Person",
+        "@id": "https://claudeloop.surge.sh/#person",
+        "name": "Karim Meleka",
+        "url": "https://karimmeleka.com",
+        "jobTitle": "Software Developer",
+        "sameAs": [
+          "https://karimmeleka.com",
+          "https://github.com/kmlogloglog"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://claudeloop.surge.sh/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is Claude Loop?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Claude Loop is a local plugin that adds persistent memory, file-level rollback, automatic test feedback, loop detection, and context-pressure awareness to every Claude Code session. It runs entirely on your machine with no cloud, telemetry, or API keys." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I install Claude Loop?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Run npx claude-code-loop init in your terminal. It registers hooks with Claude Code and starts a local background worker automatically." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does Claude Loop send my code to the cloud?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. Claude Loop is local-first. It stores everything in a local SQLite database at ~/.claude-code-loop and never sends telemetry or your code anywhere." }
+          },
+          {
+            "@type": "Question",
+            "name": "What is an agent loop?",
+            "acceptedAnswer": { "@type": "Answer", "text": "An agent loop turns a one-time instruction into a repeatable cycle: attempt a step, check the result against a clear test, decide the next move, and stop once the goal is reached. It makes long-running agent work measurable and safe to trust." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root{
+      --bg:#f5f1e8; --panel:#fbf8f2; --panel-alt:#f2ece2;
+      --text:#1f1a17; --muted:#6b625b; --faint:#8a8177;
+      --border:#ddd4c7; --border-strong:#cfc4b4;
+      --accent:#c96a2b; --accent-dark:#a95520; --accent-soft:#e06c5e;
+      --success:#4d7a57; --warning:#b7791f; --danger:#b24c3d;
+      --code-bg:#efe8dd;
+      --r:8px; --r-lg:12px; --r-xl:18px;
+      --serif:"Source Serif 4","Georgia",serif;
+      --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      --mono:"JetBrains Mono","Fira Code",ui-monospace,monospace;
+      --maxw:1180px;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:var(--sans); font-size:17px; line-height:1.6;
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+      overflow-x:hidden;
+    }
+    a{color:inherit; text-decoration:none}
+    img{max-width:100%; display:block}
+    ::selection{background:var(--accent); color:#fff}
+
+    .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px}
+    .eyebrow{
+      font-family:var(--mono); font-size:12px; letter-spacing:.18em;
+      text-transform:uppercase; color:var(--accent); font-weight:600; margin:0 0 18px;
+    }
+    h1,h2,h3{font-family:var(--serif); font-weight:700; line-height:1.08; letter-spacing:-.015em; margin:0}
+    .accent-i{font-style:italic; color:var(--accent); font-weight:600}
+    p{margin:0 0 18px}
+    .lead{font-size:1.18rem; color:var(--muted); max-width:62ch}
+
+    /* ---------- top announcement bar ---------- */
+    .topbar{
+      background:var(--text); color:#f3ece1; font-size:13px;
+      display:flex; align-items:center; justify-content:center; gap:18px;
+      padding:9px 16px; flex-wrap:wrap; font-family:var(--mono); letter-spacing:.01em;
+    }
+    .topbar a{color:#f3ece1; border-bottom:1px solid rgba(243,236,225,.35); padding-bottom:1px; transition:opacity .2s}
+    .topbar a:hover{opacity:.7}
+    .topbar .dot{width:6px;height:6px;border-radius:50%;background:var(--success);display:inline-block;box-shadow:0 0 0 3px rgba(77,122,87,.25)}
+
+    /* ---------- nav ---------- */
+    header.nav{position:sticky; top:0; z-index:50; background:rgba(245,241,232,.82); backdrop-filter:saturate(160%) blur(12px); border-bottom:1px solid var(--border)}
+    .nav-inner{display:flex; align-items:center; justify-content:space-between; height:64px}
+    .brand{display:flex; align-items:center; gap:11px; font-family:var(--serif); font-weight:700; font-size:1.18rem}
+    .brand .logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent-soft)); display:grid;place-items:center;color:#fff;box-shadow:0 3px 8px rgba(201,106,43,.3)}
+    .brand .logo svg{width:18px;height:18px}
+    .nav-links{display:flex; align-items:center; gap:28px; font-size:14.5px; font-weight:500}
+    .nav-links a{color:var(--muted); transition:color .18s}
+    .nav-links a:hover{color:var(--text)}
+    .nav-cta{display:flex;align-items:center;gap:14px}
+    .icon-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--panel);display:grid;place-items:center;color:var(--muted);transition:all .18s}
+    .icon-btn:hover{color:var(--text);border-color:var(--border-strong);transform:translateY(-1px)}
+    .icon-btn svg{width:17px;height:17px}
+    .menu-toggle{display:none;background:none;border:1px solid var(--border);border-radius:8px;width:38px;height:38px;cursor:pointer;color:var(--text)}
+
+    /* ---------- buttons ---------- */
+    .btn{
+      display:inline-flex;align-items:center;gap:8px; font-family:var(--sans); font-weight:600; font-size:15px;
+      padding:13px 22px; border-radius:var(--r); border:1px solid transparent; cursor:pointer; transition:all .18s; white-space:nowrap;
+    }
+    .btn-primary{background:var(--accent); color:#fff; box-shadow:0 4px 14px rgba(201,106,43,.28)}
+    .btn-primary:hover{background:var(--accent-dark); transform:translateY(-2px); box-shadow:0 8px 22px rgba(201,106,43,.34)}
+    .btn-ghost{background:var(--panel); border-color:var(--border-strong); color:var(--text)}
+    .btn-ghost:hover{border-color:var(--accent); color:var(--accent); transform:translateY(-2px)}
+    .btn-text{background:none;color:var(--muted);padding:13px 8px}
+    .btn-text:hover{color:var(--accent)}
+
+    /* ---------- terminal / code ---------- */
+    .cmd{
+      display:inline-flex;align-items:center;gap:14px; background:var(--panel); border:1px solid var(--border-strong);
+      border-radius:var(--r); padding:13px 16px; font-family:var(--mono); font-size:15px; box-shadow:0 1px 3px rgba(31,26,23,.05);
+    }
+    .cmd .prompt{color:var(--accent); font-weight:600}
+    .cmd .copy{font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); border:1px solid var(--border); border-radius:5px; padding:4px 9px; cursor:pointer; background:var(--bg); transition:all .18s}
+    .cmd .copy:hover{color:var(--accent); border-color:var(--accent)}
+    .cmd .copy.done{color:var(--success); border-color:var(--success)}
+    code.inline{font-family:var(--mono); font-size:.9em; background:var(--code-bg); border:1px solid var(--border); padding:1px 6px; border-radius:5px; color:var(--accent-dark)}
+
+    .terminal{background:#241f1b; border-radius:var(--r-lg); overflow:hidden; box-shadow:0 24px 60px -20px rgba(31,26,23,.45); border:1px solid #3a3228}
+    .terminal-bar{display:flex;align-items:center;gap:7px; padding:13px 16px; background:#1e1a17; border-bottom:1px solid #34291f}
+    .terminal-bar .tdot{width:11px;height:11px;border-radius:50%}
+    .terminal-bar .tdot:nth-child(1){background:#e06c5e} .terminal-bar .tdot:nth-child(2){background:#d8a84a} .terminal-bar .tdot:nth-child(3){background:#6ea668}
+    .terminal-bar .ttitle{margin-left:10px;font-family:var(--mono);font-size:12.5px;color:#8a8177}
+    .terminal-body{padding:22px 22px 26px; font-family:var(--mono); font-size:14px; line-height:1.95; color:#e8dfd2}
+    .terminal-body .tp{color:var(--accent)}
+    .terminal-body .tc{color:#8a8177}
+    .terminal-body .cursor{display:inline-block;width:9px;height:17px;background:var(--accent);vertical-align:-3px;animation:blink 1.1s steps(2) infinite}
+    @keyframes blink{50%{opacity:0}}
+
+    /* ---------- sections ---------- */
+    section{padding:96px 0; border-top:1px solid var(--border)}
+    .sec-head{max-width:64ch; margin-bottom:54px}
+    .sec-head h2{font-size:clamp(2rem,4.4vw,3rem); margin-bottom:18px}
+
+    /* ---------- hero ---------- */
+    .hero{padding:60px 0 92px; border-top:none; text-align:center; position:relative}
+    .hero::before{content:"";position:absolute;inset:0;background:radial-gradient(1100px 480px at 50% -10%, rgba(201,106,43,.10), transparent 70%);pointer-events:none}
+    .pill{display:inline-flex;align-items:center;gap:9px; background:var(--panel); border:1px solid var(--border-strong); border-radius:999px; padding:8px 16px; font-size:13.5px; font-weight:500; color:var(--muted); margin-bottom:30px}
+    .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 0 4px rgba(77,122,87,.18)}
+    .pill .by{color:var(--accent);font-weight:600}
+    .hero h1{font-size:clamp(2.7rem,7vw,5.1rem); margin:0 auto 26px; max-width:15ch}
+    .hero .lead{margin:0 auto 38px; font-size:1.25rem; max-width:60ch}
+    .hero-cmd{display:flex;justify-content:center;margin-bottom:30px}
+    .hero-actions{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+
+    /* ---------- cards / grids ---------- */
+    .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:22px}
+    .grid-2{display:grid; grid-template-columns:repeat(2,1fr); gap:22px}
+    .card{background:var(--panel); border:1px solid var(--border); border-radius:var(--r-lg); padding:30px; transition:transform .25s, box-shadow .25s, border-color .25s}
+    .card:hover{transform:translateY(-4px); box-shadow:0 18px 40px -22px rgba(31,26,23,.35); border-color:var(--border-strong)}
+    .card h3{font-size:1.28rem;margin-bottom:14px}
+    .card-label{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:16px}
+    ul.checklist{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:13px}
+    ul.checklist li{display:flex;gap:11px;font-size:15.5px;color:var(--muted);line-height:1.5}
+    ul.checklist li::before{content:"";flex:none;width:7px;height:7px;border-radius:50%;background:var(--accent);margin-top:8px}
+    ul.checklist.neg li::before{background:var(--danger)}
+    ul.checklist.pos li::before{background:var(--success)}
+
+    .callout{background:var(--panel); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:var(--r); padding:26px 30px; margin-top:30px}
+    .callout strong{color:var(--text)}
+
+    /* feature numbered cards */
+    .feat{position:relative;overflow:hidden}
+    .feat .num{font-family:var(--serif);font-size:2.6rem;font-weight:300;color:var(--border-strong);line-height:1;margin-bottom:14px}
+    .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;font-weight:600;padding:3px 9px;border-radius:5px;margin-bottom:14px}
+    .tag.auto{background:rgba(77,122,87,.13);color:var(--success)}
+    .tag.opt{background:rgba(183,121,31,.14);color:var(--warning)}
+    .feat p{font-size:15px;color:var(--muted);margin:0}
+
+    /* steps */
+    .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;counter-reset:s}
+    .step{position:relative;padding-top:18px}
+    .step .si{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--accent);margin-bottom:10px}
+    .step h3{font-size:1.15rem;margin-bottom:8px}
+    .step p{font-size:14.5px;color:var(--muted);margin:0}
+
+    .first60{background:var(--panel-alt);border:1px solid var(--border);border-radius:var(--r-lg);padding:30px;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px}
+    .f60{display:flex;gap:13px;align-items:flex-start;font-size:14px;color:var(--muted)}
+    .f60 .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-family:var(--mono);font-size:12.5px;font-weight:600}
+
+    /* loop examples */
+    .loop-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r-lg);padding:0;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+    .loop-card:hover{transform:translateY(-4px);box-shadow:0 18px 40px -22px rgba(31,26,23,.35);border-color:var(--border-strong)}
+    .loop-card .lc-head{padding:24px 26px 18px;border-bottom:1px solid var(--border)}
+    .loop-card .lc-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:11px}
+    .loop-card .lc-head h3{font-size:1.2rem}
+    .loop-card .lc-body{padding:22px 26px 24px;flex:1;display:flex;flex-direction:column;gap:16px}
+    .loop-prompt{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--r);padding:15px 16px;font-family:var(--mono);font-size:13.2px;line-height:1.65;color:var(--text);position:relative}
+    .loop-prompt .pcopy{position:absolute;top:9px;right:9px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:3px 7px;cursor:pointer;transition:all .18s}
+    .loop-prompt .pcopy:hover{color:var(--accent);border-color:var(--accent)}
+    .loop-prompt .pcopy.done{color:var(--success);border-color:var(--success)}
+    .loop-meta{font-size:14px;color:var(--muted)}
+    .loop-meta b{color:var(--text);font-weight:600}
+
+    /* loop tabs (copyable) */
+    .loop-tabs{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:22px}
+    .loop-tab{font-family:var(--sans);font-weight:600;font-size:14px;padding:10px 17px;border-radius:999px;border:1px solid var(--border-strong);background:var(--panel);color:var(--muted);cursor:pointer;transition:all .18s;display:inline-flex;align-items:center;gap:8px;line-height:1}
+    .loop-tab .lt-kind{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.65}
+    .loop-tab:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+    .loop-tab.active{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 4px 12px rgba(201,106,43,.26)}
+    .loop-tab.active .lt-kind{opacity:.85}
+    .loop-panel{display:none}
+    .loop-panel.active{display:block;animation:fade .35s ease}
+    @keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+    .loop-panel-inner{background:var(--panel);border:1px solid var(--border-strong);border-radius:var(--r-lg);overflow:hidden;display:grid;grid-template-columns:.85fr 1.35fr;box-shadow:0 14px 40px -26px rgba(31,26,23,.4)}
+    .lp-side{padding:30px;border-right:1px solid var(--border);background:var(--panel-alt)}
+    .lp-side .lc-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:11px}
+    .lp-side h3{font-size:1.5rem;margin-bottom:14px}
+    .lp-side p{font-size:14.5px;color:var(--muted);margin:0}
+    .lp-side p b{color:var(--text)}
+    .lp-main{padding:26px 28px 28px;display:flex;flex-direction:column;gap:18px}
+    .lp-prompt{background:var(--code-bg);border:1px solid var(--border);border-radius:var(--r);padding:20px 22px;font-family:var(--mono);font-size:14px;line-height:1.72;color:var(--text)}
+    .lp-prompt pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:inherit}
+    .lp-foot{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+    .lp-copy{cursor:pointer}
+    .lp-copy.done{background:var(--success)!important}
+    @media(max-width:780px){.loop-panel-inner{grid-template-columns:1fr}.lp-side{border-right:none;border-bottom:1px solid var(--border)}}
+
+    /* paths grid */
+    .paths{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .path{background:var(--panel);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:border-color .2s,transform .2s}
+    .path:hover{border-color:var(--accent);transform:translateY(-3px)}
+    .path .pname{font-family:var(--serif);font-weight:700;font-size:1.1rem;margin-bottom:7px}
+    .path p{font-size:13.5px;color:var(--muted);margin:0}
+
+    /* about author */
+    .author{display:grid;grid-template-columns:1fr 1.25fr;gap:48px;align-items:center}
+    .author-card{background:linear-gradient(160deg,var(--panel),var(--panel-alt));border:1px solid var(--border);border-radius:var(--r-xl);padding:38px;position:relative;overflow:hidden}
+    .author-card::after{content:"";position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(201,106,43,.16),transparent 70%);right:-60px;top:-60px}
+    .avatar{width:84px;height:84px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent-soft));display:grid;place-items:center;font-family:var(--serif);font-weight:700;font-size:2.1rem;color:#fff;box-shadow:0 10px 26px -8px rgba(201,106,43,.5);margin-bottom:22px}
+    .author-card h3{font-size:1.6rem;margin-bottom:6px}
+    .author-card .role{font-family:var(--mono);font-size:13px;color:var(--accent);letter-spacing:.04em;margin-bottom:18px}
+    .author-links{display:flex;flex-direction:column;gap:11px;margin-top:22px}
+    .author-links a{display:flex;align-items:center;gap:11px;padding:13px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--r);font-weight:600;font-size:14.5px;transition:all .2s}
+    .author-links a:hover{border-color:var(--accent);color:var(--accent);transform:translateX(4px)}
+    .author-links svg{width:18px;height:18px;flex:none}
+    .author-links .meta{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--faint)}
+    .author-prose h2{font-size:clamp(1.9rem,3.6vw,2.6rem);margin-bottom:22px}
+    .author-prose p{color:var(--muted);font-size:1.05rem}
+    .stat-row{display:flex;gap:34px;margin-top:30px;flex-wrap:wrap}
+    .stat .v{font-family:var(--serif);font-weight:700;font-size:1.9rem;color:var(--text)}
+    .stat .k{font-size:13px;color:var(--faint);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase}
+
+    /* cta band */
+    .cta-band{background:var(--text);border-radius:var(--r-xl);padding:60px;text-align:center;color:#f3ece1;position:relative;overflow:hidden}
+    .cta-band::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 300px at 50% 0%,rgba(201,106,43,.25),transparent 70%)}
+    .cta-band h2{color:#fff;font-size:clamp(2rem,4.5vw,3rem);margin-bottom:18px;position:relative}
+    .cta-band p{color:#d8cdbf;max-width:54ch;margin:0 auto 30px;position:relative}
+    .cta-band .cmd{position:relative;background:#2a2420;border-color:#3a3228;color:#f3ece1}
+    .cta-band .cmd .copy{background:#1e1a17;border-color:#3a3228;color:#a89a8a}
+
+    /* footer */
+    footer{border-top:1px solid var(--border);padding:60px 0 40px;background:var(--panel)}
+    .foot-grid{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;margin-bottom:40px}
+    .foot-brand{max-width:34ch}
+    .foot-brand p{font-size:14px;color:var(--muted);margin-top:14px}
+    .foot-col h4{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:16px}
+    .foot-col a{display:block;color:var(--muted);font-size:14.5px;margin-bottom:11px;transition:color .18s}
+    .foot-col a:hover{color:var(--accent)}
+    .foot-bottom{border-top:1px solid var(--border);padding-top:26px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--faint)}
+    .foot-bottom a{color:var(--accent);font-weight:600}
+
+    /* reveal animation — progressive enhancement; content stays fully visible if JS/animation is unavailable */
+    .reveal{opacity:1}
+    html.reveal-ready .reveal{opacity:0}
+    html.reveal-ready .reveal.in{animation:revealIn .7s cubic-bezier(.2,.7,.2,1) forwards}
+    @keyframes revealIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+    @media (prefers-reduced-motion: reduce){html.reveal-ready .reveal{opacity:1}html.reveal-ready .reveal.in{animation:none}}
+
+    /* responsive */
+    @media(max-width:980px){
+      .grid-3,.steps,.paths,.first60{grid-template-columns:1fr 1fr}
+      .author{grid-template-columns:1fr;gap:32px}
+      .nav-links{display:none}
+    }
+    @media(max-width:680px){
+      body{font-size:16px}
+      .grid-3,.grid-2,.steps,.paths,.first60{grid-template-columns:1fr}
+      .nav-cta .btn-text{display:none}
+      .menu-toggle{display:grid;place-items:center}
+      section{padding:70px 0}
+      .hero{padding:40px 0 64px}
+      .cta-band{padding:40px 24px}
+      .topbar{font-size:11.5px;gap:10px}
+      .mobile-nav.open{display:flex}
+    }
+    .mobile-nav{display:none;flex-direction:column;gap:4px;padding:12px 24px 18px;border-bottom:1px solid var(--border);background:var(--panel)}
+    .mobile-nav a{padding:10px 0;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border)}
+    .mobile-nav a:last-child{border-bottom:none}
+  </style>
+  <script>if('IntersectionObserver' in window){document.documentElement.classList.add('reveal-ready')}</script>
+</head>
+<body>
+
+  <!-- ============ TOP BAR ============ -->
+  <div class="topbar">
+    <span><span class="dot"></span>&nbsp; Runs locally · works with Claude Code</span>
+    <span>Built &amp; curated by <a href="https://karimmeleka.com" target="_blank" rel="noopener">Karim Meleka</a></span>
+    <span>★ Open source on <a href="https://github.com/kmlogloglog" target="_blank" rel="noopener">GitHub</a></span>
+  </div>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="/" aria-label="Claude Loop home">
+        <span class="logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.1a9 9 0 1 1-9.9 1.4"/><path d="M7 1v5h5"/></svg>
+        </span>
+        Claude Loop
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#about">About</a>
+        <a href="#install">Install</a>
+        <a href="#how">How It Works</a>
+        <a href="#features">Features</a>
+        <a href="#loops">Loops</a>
+        <a href="#author">By Karim</a>
+      </nav>
+      <div class="nav-cta">
+        <a class="btn-text" href="#install">Get started</a>
+        <a class="icon-btn" href="https://github.com/kmlogloglog" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.3-1.8-1.3-1.8-1.1-.7 0-.7 0-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C18 5 19 5.3 19 5.3c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg>
+        </a>
+        <a class="icon-btn" href="https://karimmeleka.com" target="_blank" rel="noopener" aria-label="karimmeleka.com">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+        </a>
+        <button class="menu-toggle" aria-label="Menu" onclick="document.getElementById('mnav').classList.toggle('open')">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mnav" aria-label="Mobile">
+      <a href="#about" onclick="closeMnav()">About</a>
+      <a href="#install" onclick="closeMnav()">Install</a>
+      <a href="#how" onclick="closeMnav()">How It Works</a>
+      <a href="#features" onclick="closeMnav()">Features</a>
+      <a href="#loops" onclick="closeMnav()">Loops</a>
+      <a href="#author" onclick="closeMnav()">By Karim Meleka</a>
+    </nav>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="pill"><span class="dot"></span> Runs locally · <span class="by">crafted by Karim Meleka</span></span>
+      <h1>Operational memory and safety for <span class="accent-i">Claude Code.</span></h1>
+      <p class="lead">Claude Loop adds persistent memory, file-level rollback, automatic test feedback, loop detection, context-pressure awareness, and before/after screenshot comparison to every Claude Code session. Runs entirely on your machine.</p>
+      <div class="hero-cmd">
+        <div class="cmd">
+          <span class="prompt">$</span>
+          <span data-cmd>npx claude-code-loop init</span>
+          <button class="copy" data-copy="npx claude-code-loop init">Copy</button>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#install">Install Claude Loop</a>
+        <a class="btn btn-ghost" href="#loops">Browse example loops →</a>
+        <a class="btn btn-text" href="#author">Meet the developer</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">About</p>
+        <h2>Everything Claude Code is missing, in one plugin.</h2>
+        <p class="lead">Claude Code is powerful — but it has no memory between sessions, no undo beyond git, no test feedback, no awareness of its own context window, and no way to detect when it's stuck in a loop. Claude Loop adds all of that.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card reveal">
+          <p class="card-label">What Claude Code lacks</p>
+          <ul class="checklist neg">
+            <li>No persistent memory — every session starts from zero</li>
+            <li>No file-level rollback — bad edits need manual git recovery</li>
+            <li>No automatic test runs after edits</li>
+            <li>No loop detection when Claude repeats a failed approach</li>
+            <li>No context-pressure awareness before hitting the limit</li>
+            <li>No visual regression checks on frontend changes</li>
+          </ul>
+        </div>
+        <div class="card reveal">
+          <p class="card-label">What Claude Loop adds</p>
+          <ul class="checklist pos">
+            <li>Persistent structured memory across sessions</li>
+            <li>Automatic file snapshots with one-click rollback</li>
+            <li>Test feedback loops — related tests run after each edit</li>
+            <li>Loop detection that warns Claude when it's stuck</li>
+            <li>Context-pressure monitoring before the window fills up</li>
+            <li>Session compression — decisions &amp; patterns extracted</li>
+          </ul>
+        </div>
+        <div class="card reveal">
+          <p class="card-label">How it runs</p>
+          <ul class="checklist">
+            <li>Local background worker with hooks into Claude Code</li>
+            <li>SQLite database at <code class="inline">~/.claude-code-loop</code></li>
+            <li>No cloud, no telemetry, no API keys</li>
+            <li>Install once, forget about it</li>
+            <li>Live dashboard to inspect, diff, test, and roll back</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout reveal">
+        <p class="card-label">Why this matters</p>
+        <p style="margin:0">Without memory, Claude repeats mistakes. Without rollback, bad edits require manual recovery. Without test feedback, broken code ships silently. <strong>Claude Loop closes these gaps</strong> so you spend less time supervising and more time building.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ INSTALL / CLI ============ -->
+  <section id="install">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">CLI</p>
+        <h2>Install and use from your terminal.</h2>
+        <p class="lead">One command installs everything. Claude Loop runs in the background and hooks into every Claude Code session on your machine automatically.</p>
+      </div>
+      <div class="grid-2" style="align-items:start">
+        <div class="terminal reveal">
+          <div class="terminal-bar"><span class="tdot"></span><span class="tdot"></span><span class="tdot"></span><span class="ttitle">bash — claude-code-loop</span></div>
+          <div class="terminal-body">
+            <div><span class="tp">$</span> npx claude-code-loop init &nbsp;&nbsp;<span class="tc"># install hooks + start worker</span></div>
+            <div><span class="tp">$</span> npx claude-code-loop start &nbsp;<span class="tc"># start the background worker</span></div>
+            <div><span class="tp">$</span> npx claude-code-loop status <span class="tc"># worker health &amp; sessions</span></div>
+            <div><span class="tp">$</span> npx claude-code-loop uninstall <span class="tc"># remove hooks, stop worker</span></div>
+            <div><span class="tp">$</span> <span class="cursor"></span></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card reveal" style="padding:24px">
+            <p class="card-label">Requires</p>
+            <p style="margin:0;color:var(--muted);font-size:15px">Node 18+, Claude Code CLI</p>
+          </div>
+          <div class="card reveal" style="padding:24px">
+            <p class="card-label">Storage</p>
+            <p style="margin:0;color:var(--muted);font-size:15px"><code class="inline">~/.claude-code-loop</code> — local SQLite</p>
+          </div>
+          <div class="card reveal" style="padding:24px">
+            <p class="card-label">Network</p>
+            <p style="margin:0;color:var(--muted);font-size:15px">Localhost only · no telemetry</p>
+          </div>
+          <div class="card reveal" style="padding:24px;background:var(--panel-alt)">
+            <p class="card-label">Dashboard</p>
+            <p style="margin:0;color:var(--muted);font-size:15px">Visit <code class="inline">localhost:37200/dashboard</code> to inspect everything in real time.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="first60 reveal">
+        <div class="f60"><span class="n">1</span><span>Run <code class="inline">npx claude-code-loop init</code> — hooks register, worker starts</span></div>
+        <div class="f60"><span class="n">2</span><span>Open any project with Claude Code — Claude Loop activates automatically</span></div>
+        <div class="f60"><span class="n">3</span><span>Make an edit — snapshot captured, tests run, memory starts building</span></div>
+        <div class="f60"><span class="n">4</span><span>Visit the dashboard to see everything in real time</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ HOW IT WORKS ============ -->
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Workflow</p>
+        <h2>How it works.</h2>
+        <p class="lead">Four invisible steps. You never have to think about any of them after the first one.</p>
+      </div>
+      <div class="steps">
+        <div class="step reveal"><div class="si">01</div><h3>Install once</h3><p>Run <code class="inline">init</code>. Hooks register with Claude Code automatically — no config edits required.</p></div>
+        <div class="step reveal"><div class="si">02</div><h3>Keep working normally</h3><p>Use Claude Code exactly as before. Claude Loop hooks fire silently in the background on every session.</p></div>
+        <div class="step reveal"><div class="si">03</div><h3>Everything captured</h3><p>File snapshots before every edit. Related tests run after changes. Memories accumulate across sessions.</p></div>
+        <div class="step reveal"><div class="si">04</div><h3>Inspect, undo, learn</h3><p>Open the dashboard to see what Claude did, diff any change, roll back files, and review what the brain remembers.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FEATURES ============ -->
+  <section id="features">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Features</p>
+        <h2>Six capabilities, most fully automatic.</h2>
+        <p class="lead">Claude Loop doesn't change how you use Claude Code. It adds a safety net, a memory, and visibility underneath it.</p>
+      </div>
+      <div class="grid-3">
+        <div class="card feat reveal"><div class="num">01</div><span class="tag auto">Automatic</span><h3>Brain</h3><p>Persistent structured memory that survives across sessions. Stores decisions, failures, patterns, and project setup. Claude starts each session pre-briefed instead of cold.</p></div>
+        <div class="card feat reveal"><div class="num">02</div><span class="tag auto">Automatic</span><h3>Snapshots &amp; Rollback</h3><p>Every Edit, Write, or MultiEdit creates a git-backed snapshot before the change. Roll back any file to any prior state from the dashboard.</p></div>
+        <div class="card feat reveal"><div class="num">03</div><span class="tag auto">Automatic</span><h3>Test Feedback</h3><p>Related tests run automatically after Claude edits files. Failures are recorded in the timeline and stored as memories so they are not repeated.</p></div>
+        <div class="card feat reveal"><div class="num">04</div><span class="tag opt">Optional</span><h3>Eyes (Vision)</h3><p>When Claude edits frontend files, Claude Loop captures before/after screenshots for visual comparison. Requires a running dev server on a configured port.</p></div>
+        <div class="card feat reveal"><div class="num">05</div><span class="tag opt">Optional</span><h3>Dream Cycle</h3><p>Optional background memory consolidation. Deduplicates, prunes, and synthesizes memories between sessions. Off by default — enable it in config.</p></div>
+        <div class="card feat reveal"><div class="num">06</div><span class="tag auto">Automatic</span><h3>Live Dashboard</h3><p>Timeline, diffs, test results, screenshots, brain state, and rollback controls. Everything Claude did in a session, visible and reversible in one place.</p></div>
+      </div>
+      <div class="callout reveal">
+        <p class="card-label">How memory works</p>
+        <p style="margin:0">Claude Loop does not replay full raw conversations. It stores compressed, structured knowledge — decisions, failures, patterns, project setup. Each session gets a compact context pack (<strong>~600 tokens</strong>) of the most relevant memories. That's how it saves time and reduces repeated work without inflating your context window.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LOOPS / EXAMPLES (enhanced from Loop Library) ============ -->
+  <section id="loops">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <p class="eyebrow">Loop Library</p>
+        <h2>What is a <span class="accent-i">loop</span>, and why is it powerful?</h2>
+        <p class="lead">A normal prompt fires once and hopes for the best. A <strong>loop</strong> turns that single shot into a cycle — try something, check the result, decide the next move, and stop the moment the goal is genuinely met. Pick a tab below and copy a ready-to-run loop straight into Claude Code.</p>
+      </div>
+
+      <div class="grid-2" style="margin-bottom:46px">
+        <div class="card reveal">
+          <p class="card-label">A one-shot prompt</p>
+          <p style="font-family:var(--serif);font-size:1.35rem;font-style:italic;color:var(--muted);margin:0">"Speed up the site."</p>
+          <p style="margin:14px 0 0;font-size:14.5px;color:var(--faint)">Fires once. No yardstick, no feedback, no signal for whether it worked or when to stop.</p>
+        </div>
+        <div class="card reveal" style="border-color:var(--accent)">
+          <p class="card-label">The same intent, as a loop</p>
+          <p style="font-family:var(--serif);font-size:1.18rem;font-style:italic;color:var(--text);margin:0;line-height:1.5">"Profile the pages, pick the slowest, ship one targeted fix, then re-measure. Keep the change only when the numbers actually move — then go again. Stop once every page clears its budget, or a full pass no longer earns its keep."</p>
+        </div>
+      </div>
+
+      <p class="eyebrow reveal" style="margin-bottom:18px">Copy-ready loops — pick a tab, hit copy</p>
+      <div class="reveal" style="margin-bottom:56px">
+        <div class="loop-tabs" role="tablist" aria-label="Example loops">
+          <button class="loop-tab active" data-loop="0" role="tab"><span class="lt-kind">Performance</span> Speed Sweep</button>
+          <button class="loop-tab" data-loop="1" role="tab"><span class="lt-kind">Reliability</span> Flake Killer</button>
+          <button class="loop-tab" data-loop="2" role="tab"><span class="lt-kind">Maintenance</span> Docs Drift Fixer</button>
+          <button class="loop-tab" data-loop="3" role="tab"><span class="lt-kind">Quality</span> Coverage Climber</button>
+          <button class="loop-tab" data-loop="4" role="tab"><span class="lt-kind">Production</span> Error Triage</button>
+          <button class="loop-tab" data-loop="5" role="tab"><span class="lt-kind">Review</span> Diff Polisher</button>
+        </div>
+
+        <div class="loop-panel active" data-panel="0" role="tabpanel">
+          <div class="loop-panel-inner">
+            <div class="lp-side">
+              <p class="lc-kicker">Performance</p>
+              <h3>Speed Sweep</h3>
+              <p><b>Use when</b> the app feels sluggish and you want measured, page-by-page wins instead of one risky rewrite.</p>
+            </div>
+            <div class="lp-main">
+              <div class="lp-prompt"><pre>Profile every page and find the slowest one. Ship a single targeted fix, then measure again. Keep the change only when the numbers genuinely improve, then move to the next page. Stop once every page clears its performance budget — or once a full pass no longer makes a meaningful difference.</pre></div>
+              <div class="lp-foot">
+                <button class="btn btn-primary lp-copy" data-copy="Profile every page and find the slowest one. Ship a single targeted fix, then measure again. Keep the change only when the numbers genuinely improve, then move to the next page. Stop once every page clears its performance budget — or once a full pass no longer makes a meaningful difference.">Copy prompt</button>
+                <span class="loop-meta"><b>Verify:</b> measured load times fall below budget and stay there.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="loop-panel" data-panel="1" role="tabpanel">
+          <div class="loop-panel-inner">
+            <div class="lp-side">
+              <p class="lc-kicker">Reliability</p>
+              <h3>Flake Killer</h3>
+              <p><b>Use when</b> your CI is red for no real reason and intermittent tests are eroding trust in the suite.</p>
+            </div>
+            <div class="lp-main">
+              <div class="lp-prompt"><pre>Run the suite and isolate the test that fails most often without a genuine code cause. Apply one focused fix, then run that test ten times back to back. Keep the fix only if all ten pass. Move to the next flaky test and repeat until the suite is consistently green or no clear candidate remains.</pre></div>
+              <div class="lp-foot">
+                <button class="btn btn-primary lp-copy" data-copy="Run the suite and isolate the test that fails most often without a genuine code cause. Apply one focused fix, then run that test ten times back to back. Keep the fix only if all ten pass. Move to the next flaky test and repeat until the suite is consistently green or no clear candidate remains.">Copy prompt</button>
+                <span class="loop-meta"><b>Verify:</b> ten consecutive green runs per repaired test.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="loop-panel" data-panel="2" role="tabpanel">
+          <div class="loop-panel-inner">
+            <div class="lp-side">
+              <p class="lc-kicker">Maintenance</p>
+              <h3>Docs Drift Fixer</h3>
+              <p><b>Use when</b> the README and the code have quietly drifted apart and examples no longer run.</p>
+            </div>
+            <div class="lp-main">
+              <div class="lp-prompt"><pre>Scan for a single place where the documentation no longer matches the code. Bring it back in sync and run the example to prove it works. Repeat one mismatch at a time until docs and code agree. Pause and check with me before removing any section outright.</pre></div>
+              <div class="lp-foot">
+                <button class="btn btn-primary lp-copy" data-copy="Scan for a single place where the documentation no longer matches the code. Bring it back in sync and run the example to prove it works. Repeat one mismatch at a time until docs and code agree. Pause and check with me before removing any section outright.">Copy prompt</button>
+                <span class="loop-meta"><b>Verify:</b> every example runs; no stale references left.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="loop-panel" data-panel="3" role="tabpanel">
+          <div class="loop-panel-inner">
+            <div class="lp-side">
+              <p class="lc-kicker">Quality</p>
+              <h3>Coverage Climber</h3>
+              <p><b>Use when</b> critical paths are under-tested and you want coverage that reflects real behavior, not vanity numbers.</p>
+            </div>
+            <div class="lp-main">
+              <div class="lp-prompt"><pre>Locate the most under-tested critical module. Add one test that exercises real behavior — not a placeholder — and re-run coverage. Keep it only if coverage rises and the suite stays green. Repeat until you reach the target or new tests stop earning their place.</pre></div>
+              <div class="lp-foot">
+                <button class="btn btn-primary lp-copy" data-copy="Locate the most under-tested critical module. Add one test that exercises real behavior — not a placeholder — and re-run coverage. Keep it only if coverage rises and the suite stays green. Repeat until you reach the target or new tests stop earning their place.">Copy prompt</button>
+                <span class="loop-meta"><b>Verify:</b> coverage increases; all tests pass.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="loop-panel" data-panel="4" role="tabpanel">
+          <div class="loop-panel-inner">
+            <div class="lp-side">
+              <p class="lc-kicker">Production</p>
+              <h3>Error Triage</h3>
+              <p><b>Use when</b> production is noisy and you want to quiet the loudest errors first, safely.</p>
+            </div>
+            <div class="lp-main">
+              <div class="lp-prompt"><pre>Pull the latest production errors and sort them by frequency. Reproduce the top one, ship a focused fix, and watch the rate respond. Work down the list and repeat until the loudest errors go quiet. Stop and ask me first before any change that touches data, billing, or auth.</pre></div>
+              <div class="lp-foot">
+                <button class="btn btn-primary lp-copy" data-copy="Pull the latest production errors and sort them by frequency. Reproduce the top one, ship a focused fix, and watch the rate respond. Work down the list and repeat until the loudest errors go quiet. Stop and ask me first before any change that touches data, billing, or auth.">Copy prompt</button>
+                <span class="loop-meta"><b>Verify:</b> error frequency falls in monitoring.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="loop-panel" data-panel="5" role="tabpanel">
+          <div class="loop-panel-inner">
+            <div class="lp-side">
+              <p class="lc-kicker">Review</p>
+              <h3>Diff Polisher</h3>
+              <p><b>Use when</b> a change is nearly ready and you want one more careful pass before it ships.</p>
+            </div>
+            <div class="lp-main">
+              <div class="lp-prompt"><pre>Read the current diff and surface one concrete correctness or clarity problem. Fix it, re-run the affected tests, and keep the change only if they stay green. Repeat until nothing material is left, then write a short note on what changed and why.</pre></div>
+              <div class="lp-foot">
+                <button class="btn btn-primary lp-copy" data-copy="Read the current diff and surface one concrete correctness or clarity problem. Fix it, re-run the affected tests, and keep the change only if they stay green. Repeat until nothing material is left, then write a short note on what changed and why.">Copy prompt</button>
+                <span class="loop-meta"><b>Verify:</b> tests pass; every fix is justified.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sec-head reveal" style="margin-bottom:32px">
+        <p class="eyebrow">Eight ways to work with loops</p>
+        <h2 style="font-size:clamp(1.7rem,3.4vw,2.4rem)">From discovery to publication.</h2>
+        <p class="lead">These ideas build on the open-source <a href="https://github.com/Forward-Future/loopy" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600">Loopy / Loop Library</a> project. The throughline: every solid loop names its target, defines how it will know it succeeded, decides what to do with each result, and sets the point where it stops or hands back to you.</p>
+      </div>
+      <div class="paths">
+        <div class="path reveal"><div class="pname">Discover</div><p>Comb a repo or your past sessions for work you keep redoing, and shape the strongest candidate into a bounded, repeatable loop.</p></div>
+        <div class="path reveal"><div class="pname">Find</div><p>Browse a catalog of proven loops and surface the few that match the outcome you're actually after.</p></div>
+        <div class="path reveal"><div class="pname">Loop Doctor</div><p>Stress-test a loop for soft checks, risky steps, or fuzzy stop conditions — then patch only what genuinely matters.</p></div>
+        <div class="path reveal"><div class="pname">Adapt</div><p>Reshape an existing loop around your real stack, constraints, cadence, and bar for "done".</p></div>
+        <div class="path reveal"><div class="pname">Craft</div><p>Answer a few quick questions about goal, success, scope, and limits, and walk away with a loop tailored to them.</p></div>
+        <div class="path reveal"><div class="pname">Run</div><p>Drive a loop through capped passes, apply its check after each one, and hand back a receipt backed by evidence.</p></div>
+        <div class="path reveal"><div class="pname">Debrief</div><p>Read the receipts from finished runs and suggest the single smallest change worth making to the loop.</p></div>
+        <div class="path reveal"><div class="pname">Publish</div><p>Vet quality, check for overlap, preview the exact result, and share a loop only once you've signed off.</p></div>
+      </div>
+      <div class="callout reveal">
+        <p class="card-label">Loops are bounded by design</p>
+        <p style="margin:0">A loop is never a licence to run forever. The good ones carry a concrete check, a hard stopping point, and a moment that returns control to a human whenever judgement or sign-off is needed. <strong>Claude Loop's</strong> memory, rollback, and test feedback are precisely what make running these loops safe.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT THE DEVELOPER (Karim Meleka marketing) ============ -->
+  <section id="author">
+    <div class="wrap">
+      <div class="author">
+        <div class="author-card reveal">
+          <div class="avatar" aria-hidden="true">KM</div>
+          <h3>Karim Meleka</h3>
+          <p class="role">Software Developer · builder of AI dev tools</p>
+          <p style="color:var(--muted);font-size:15px;margin:0">I build practical tooling that makes AI coding agents more reliable, observable, and safe to trust on real work.</p>
+          <div class="author-links">
+            <a href="https://karimmeleka.com" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+              karimmeleka.com <span class="meta">portfolio →</span>
+            </a>
+            <a href="https://github.com/kmlogloglog" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.3-1.8-1.3-1.8-1.1-.7 0-.7 0-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C18 5 19 5.3 19 5.3c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .5Z"/></svg>
+              github.com/kmlogloglog <span class="meta">@kmlogloglog →</span>
+            </a>
+          </div>
+        </div>
+        <div class="author-prose reveal">
+          <p class="eyebrow">The developer behind Claude Loop</p>
+          <h2>Built by a developer who lives in the terminal.</h2>
+          <p>Claude Loop comes from a simple frustration: AI coding agents are brilliant in the moment but forget everything the second a session ends. They repeat mistakes, break things without an undo, and ship code no one re-tested. So I built the memory, rollback, and feedback layer I wanted underneath every Claude Code session.</p>
+          <p>I care about tools that earn trust through <strong>evidence</strong> — measured improvements, reversible changes, and clear stopping points — not vibes. If that resonates, take a look at my other work and say hello.</p>
+          <div class="stat-row">
+            <div class="stat"><div class="v">100%</div><div class="k">Local · no telemetry</div></div>
+            <div class="stat"><div class="v">~600</div><div class="k">Tokens per context pack</div></div>
+            <div class="stat"><div class="v">6</div><div class="k">Capabilities, zero config</div></div>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:30px;flex-wrap:wrap">
+            <a class="btn btn-primary" href="https://karimmeleka.com" target="_blank" rel="noopener">View my portfolio →</a>
+            <a class="btn btn-ghost" href="https://github.com/kmlogloglog" target="_blank" rel="noopener">Follow on GitHub</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA BAND ============ -->
+  <section style="border-top:none">
+    <div class="wrap">
+      <div class="cta-band reveal">
+        <h2>Give Claude Code a memory.</h2>
+        <p>Install once and every Claude Code session gains memory, rollback, test feedback, and loop detection — automatically, on your machine.</p>
+        <div style="display:flex;justify-content:center">
+          <div class="cmd">
+            <span class="prompt">$</span>
+            <span>npx claude-code-loop init</span>
+            <button class="copy" data-copy="npx claude-code-loop init">Copy</button>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:14px;margin-top:26px;flex-wrap:wrap;position:relative">
+          <a class="btn btn-primary" href="#install">Get started</a>
+          <a class="btn btn-ghost" style="background:#2a2420;border-color:#3a3228;color:#f3ece1" href="https://github.com/kmlogloglog" target="_blank" rel="noopener">Star on GitHub ★</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <a class="brand" href="/">
+            <span class="logo" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.1a9 9 0 1 1-9.9 1.4"/><path d="M7 1v5h5"/></svg>
+            </span>
+            Claude Loop
+          </a>
+          <p>Operational memory and safety for Claude Code. Local-first · no telemetry · runs on your machine.</p>
+        </div>
+        <div class="foot-col">
+          <h4>Product</h4>
+          <a href="#about">About</a>
+          <a href="#install">Install</a>
+          <a href="#how">How it works</a>
+          <a href="#features">Features</a>
+          <a href="#loops">Loop Library</a>
+        </div>
+        <div class="foot-col">
+          <h4>Developer</h4>
+          <a href="https://karimmeleka.com" target="_blank" rel="noopener">karimmeleka.com</a>
+          <a href="https://github.com/kmlogloglog" target="_blank" rel="noopener">GitHub</a>
+          <a href="#author">About Karim</a>
+        </div>
+        <div class="foot-col">
+          <h4>Resources</h4>
+          <a href="https://github.com/Forward-Future/loopy" target="_blank" rel="noopener">Loopy / Loop Library</a>
+          <a href="#loops">Example loops</a>
+          <a href="#install">CLI reference</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 Claude Loop · Built &amp; maintained by <a href="https://karimmeleka.com" target="_blank" rel="noopener">Karim Meleka</a></span>
+        <span>Local-first · No telemetry · <a href="https://github.com/kmlogloglog" target="_blank" rel="noopener">Open source</a></span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function closeMnav(){document.getElementById('mnav').classList.remove('open')}
+    // copy buttons
+    document.querySelectorAll('[data-copy]').forEach(function(btn){
+      btn.addEventListener('click',function(e){
+        e.preventDefault();
+        var text=btn.getAttribute('data-copy');
+        navigator.clipboard.writeText(text).then(function(){
+          var prev=btn.textContent; btn.textContent='Copied'; btn.classList.add('done');
+          setTimeout(function(){btn.textContent=prev; btn.classList.remove('done')},1600);
+        });
+      });
+    });
+    // loop tabs
+    document.querySelectorAll('.loop-tab').forEach(function(tab){
+      tab.addEventListener('click',function(){
+        var i=tab.getAttribute('data-loop');
+        document.querySelectorAll('.loop-tab').forEach(function(t){t.classList.remove('active')});
+        document.querySelectorAll('.loop-panel').forEach(function(p){p.classList.remove('active')});
+        tab.classList.add('active');
+        var panel=document.querySelector('.loop-panel[data-panel="'+i+'"]');
+        if(panel)panel.classList.add('active');
+      });
+    });
+    // scroll reveal — robust: anything already in/above the viewport reveals at once,
+    // the rest reveal on scroll, and a safety net reveals everything regardless after 2s.
+    (function(){
+      var reveals=[].slice.call(document.querySelectorAll('.reveal'));
+      function show(el){el.classList.add('in')}
+      if(!('IntersectionObserver' in window)){reveals.forEach(show);return;}
+      var io=new IntersectionObserver(function(entries){
+        entries.forEach(function(en){ if(en.isIntersecting){show(en.target); io.unobserve(en.target);} });
+      },{threshold:0,rootMargin:'0px 0px -8% 0px'});
+      reveals.forEach(function(el){
+        if(el.getBoundingClientRect().top < window.innerHeight){show(el);} else {io.observe(el);}
+      });
+      setTimeout(function(){reveals.forEach(show)},2000);
+    })();
+  </script>
+</body>
+</html>

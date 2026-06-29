@@ -1,0 +1,12 @@
+# dependencies / build tooling (none required to serve this site)
+node_modules/
+*.log
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# surge
+.surge/
